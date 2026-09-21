@@ -1,0 +1,124 @@
+# autosubtitles
+
+Add styled, burned-in captions to a video from the command line, or let your AI agent do it.
+
+```bash
+npx autosubtitles talk.mp4 --preset beast --srt
+```
+
+```
+/Users/you/talk.captioned.mp4
+/Users/you/talk.captioned.srt
+```
+
+The video is rendered **locally, inside your own Chrome**, using the same renderer as the [AutoSubtitles](https://autosubtitles.com) web editor. Only the audio track is uploaded, for transcription. The video never leaves your machine.
+
+- 28 caption styles, including word-by-word highlighting and animated styles
+- Hardware-accelerated: a 60-second 1080p clip renders in about 8 seconds on an Apple M-series Mac
+- No ffmpeg, no Python, no model downloads. Needs Node 20+ and Google Chrome or Microsoft Edge
+- SRT, VTT and word-level JSON output
+- Free to use with a watermark. An [AutoSubtitles license](https://autosubtitles.com) removes it
+
+## Use it from an AI agent
+
+This repository is an [agent skill](SKILL.md). It works with Claude Code, Codex, Cursor, Gemini CLI and any agent that can run a shell command.
+
+```bash
+npx skills add auto-subtitles/cli
+```
+
+Or just tell your agent:
+
+> Caption demo.mp4 with autosubtitles, in the Karaoke style, and give me an SRT too.
+
+With `--json` the command prints a single JSON object, so agents can read the result without parsing text:
+
+```json
+{
+  "ok": true,
+  "outputs": { "mp4": "/Users/you/demo.captioned.mp4", "srt": "/Users/you/demo.captioned.srt" },
+  "durationSeconds": 60,
+  "captionCount": 32,
+  "seconds": 8.3,
+  "preset": "Karaoke",
+  "watermark": true,
+  "maxShortSide": 720
+}
+```
+
+More for agents and developers: [autosubtitles.com/agent](https://autosubtitles.com/agent)
+
+## Usage
+
+```
+autosubtitles <video> [options]     caption a video
+autosubtitles presets [--json]      list caption styles
+
+  -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
+  -p, --preset <name>     caption style (default: classic)
+      --lang <code>       spoken language, e.g. en, es, de (default: auto-detect)
+      --res <shortSide>   720, 1080, 1440 or 2160 (above 720 needs a license)
+      --srt --vtt --words also write caption files beside the output
+      --captions-only     write caption files only, skip the video
+      --no-cache          transcribe again even if a cached transcript exists
+      --json              print one JSON result on stdout
+      --headed            show the browser window
+      --browser <name>    chrome, msedge or chromium
+```
+
+### Try a few styles
+
+The transcript is cached beside the video as `<video>.autosubtitles.json`, so only the first run transcribes. Re-rendering in another style takes seconds:
+
+```bash
+npx autosubtitles talk.mp4 -p classic  -o talk.classic.mp4
+npx autosubtitles talk.mp4 -p karaoke  -o talk.karaoke.mp4
+npx autosubtitles talk.mp4 -p neon-glow -o talk.neon.mp4
+```
+
+Want a style that is not in the list? Design it in the [web editor](https://autosubtitles.com), where you can see it on your own video.
+
+### Subtitle files only
+
+```bash
+npx autosubtitles talk.mp4 --captions-only --srt --vtt
+```
+
+## Free and licensed use
+
+| | Free | With a license |
+|---|---|---|
+| Watermark | Yes | No |
+| Resolution | Up to 720p | Up to 4K |
+| Video length | Up to 10 minutes | No limit |
+
+These are the same limits as the web editor. To use your license:
+
+```bash
+export AUTOSUBTITLES_LICENSE_KEY=your-key
+```
+
+## How it works
+
+1. The command launches your installed Chrome (or Edge) headlessly and opens `autosubtitles.com/render`.
+2. The page extracts the audio track and sends it for transcription.
+3. Captions are drawn onto each frame and re-encoded with [WebCodecs](https://developer.mozilla.org/docs/Web/API/WebCodecs_API), using your GPU's video encoder where one is available.
+4. The finished MP4 is written to disk.
+
+Because the renderer is the website's own, new styles and fixes arrive without updating this package.
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | Success |
+| 2 | Bad arguments, unknown preset, or file not found |
+| 3 | No Chrome or Edge found |
+| 4 | Free-tier limit or rate limit |
+| 5 | Transcription failed |
+| 6 | Render failed |
+| 130 | Cancelled |
+
+## License
+
+MIT. The caption renderer itself is part of [AutoSubtitles](https://autosubtitles.com) and is not included in this repository.

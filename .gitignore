@@ -1,0 +1,4 @@
+node_modules
+*.captioned.mp4
+*.autosubtitles.json
+.DS_Store
