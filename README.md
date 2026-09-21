@@ -21,9 +21,23 @@ The video is rendered **locally, inside your own Chrome**, using the same render
 
 This repository includes an [agent skill](skills/autosubtitles/SKILL.md). It works with Claude Code, Codex, Cursor, Gemini CLI and any agent that can run a shell command.
 
+Install it one of three ways:
+
 ```bash
+# 1. With the autosubtitles command: adds the skill to every agent on your machine
+npx autosubtitles install
+
+# 2. With skills.sh
 npx skills add autosubtitles/skills
 ```
+
+```
+# 3. As a Claude Code plugin, typed inside Claude Code
+/plugin marketplace add autosubtitles/skills
+/plugin install autosubtitles@autosubtitles
+```
+
+Run the same command again to update. `npx autosubtitles install --project` installs into the current project only.
 
 Then ask in your own words:
 
@@ -83,7 +97,7 @@ autosubtitles plan [--json]         show whether you are on Free or Pro
       --browser <name>    chrome, msedge or chromium
 ```
 
-### Pick a style by eye
+### Pick a style in a window
 
 ```bash
 npx autosubtitles review talk.mp4

@@ -2,6 +2,7 @@
 import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { installSkill } from '../src/install.js';
 import { reviewVideo } from '../src/review.js';
 import { closeSession, pollSession, replyToSession, runSessionHelper, startSession } from '../src/session.js';
 import { captionVideo, CliError, DEFAULT_BASE_URL, getPlan, listPresets } from '../src/render.js';
@@ -17,6 +18,7 @@ Usage
   autosubtitles close                 live: end the session
   autosubtitles presets [--json]      list caption styles
   autosubtitles plan [--json]         show whether you are on Free or Pro
+  autosubtitles install [--project]   add the skill to your AI agents (run again to update)
 
 Options
   -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
@@ -64,6 +66,7 @@ const { values, positionals } = parseArgs({
         'captions-only': { type: 'boolean' },
         captions: { type: 'boolean' },
         live: { type: 'boolean' },
+        project: { type: 'boolean' },
         set: { type: 'string', multiple: true },
         replace: { type: 'string', multiple: true },
         reset: { type: 'boolean' },
@@ -108,6 +111,16 @@ async function main() {
         const presets = await listPresets(common);
         if (values.json) console.log(JSON.stringify(presets));
         else for (const p of presets) console.log(`${p.id.padEnd(14)} ${p.name}`);
+        return;
+    }
+
+    if (positionals[0] === 'install' || positionals[0] === 'update') {
+        const result = await installSkill({ project: values.project });
+        if (values.json) console.log(JSON.stringify(result));
+        else {
+            for (const item of result.installed) console.log(`${item.agent.padEnd(13)} ${item.path}`);
+            console.log('\nInstalled. Restart your agent, then ask it to caption a video.');
+        }
         return;
     }
 

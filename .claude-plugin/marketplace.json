@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "autosubtitles",
+  "metadata": {
+    "description": "Caption videos from your AI agent: styled, burned-in captions rendered on your own machine."
+  },
+  "owner": {
+    "name": "AutoSubtitles",
+    "url": "https://autosubtitles.com"
+  },
+  "plugins": [
+    {
+      "name": "autosubtitles",
+      "description": "Ask your agent to caption a video. Pick a caption style in a small window, ask for changes while you watch, and get the finished video back.",
+      "version": "0.3.0",
+      "author": {
+        "name": "AutoSubtitles",
+        "url": "https://autosubtitles.com"
+      },
+      "source": "./",
+      "category": "media",
+      "homepage": "https://autosubtitles.com/agent",
+      "tags": ["captions", "subtitles", "video", "skills"]
+    }
+  ]
+}

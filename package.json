@@ -28,6 +28,7 @@
     "autosubtitles": "bin/autosubtitles.js"
   },
   "files": [
+    ".claude-plugin",
     "bin",
     "src",
     "skills"
