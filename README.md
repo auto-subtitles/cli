@@ -107,7 +107,7 @@ A small window opens with your video and every style. Click through them and wat
 
 Through an agent the same window becomes a conversation. There is a box at the bottom: type "make the captions bigger and yellow" or "fix the speaker's name everywhere", and your agent changes it while you watch. This is what happens when you ask an agent to caption a video without naming a style.
 
-Agents drive it with four commands: `review <video> --live` opens the window and returns at once, `poll` waits for what you do next, `reply` applies changes (`--preset`, `--set key=value`, `--replace "find=>with"`, `--message`), and `close` ends it. The skill's [live reference](skills/autosubtitles/reference/live.md) has the details.
+Agents drive it with four commands: `review <video> --live` opens the window and returns at once, `poll` waits for what you do next, `reply` applies changes (`--preset`, `--set key=value`, `--replace "find=>with"`, `--message`), and `close` ends it. The skill's [live reference](skills/autosubtitles/references/live.md) has the details.
 
 ### Try a few styles from the command line
 

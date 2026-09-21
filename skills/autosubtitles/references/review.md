@@ -1,6 +1,6 @@
 # review
 
-One window, one result. Use it when the user should choose by eye and you cannot hold a background loop (otherwise prefer [live](live.md)).
+One window, one result. Use it when the user should choose by looking and you cannot hold a background loop (otherwise prefer the `live` command).
 
 ```bash
 npx autosubtitles review <video> --json

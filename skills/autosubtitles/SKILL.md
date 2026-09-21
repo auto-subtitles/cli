@@ -1,6 +1,12 @@
 ---
 name: autosubtitles
 description: Add styled, burned-in captions to a video, let the user pick a style and fix captions in a small review window, and (with AutoSubtitles Pro) generate SRT/VTT subtitle files. Use when the user asks to caption, subtitle or transcribe a video file on their machine.
+license: MIT
+compatibility: Requires Node.js 20+, Google Chrome or Microsoft Edge, and internet access. Needs an agent that can run shell commands on the user's machine.
+metadata:
+  author: autosubtitles
+  homepage: https://autosubtitles.com/agent
+  version: "0.3.1"
 ---
 
 # AutoSubtitles
@@ -37,12 +43,12 @@ Never ask for, read, print or store a license key.
 
 | Command | Group | What it does | Reference |
 |---|---|---|---|
-| `caption <video>` | Caption | Burn captions in, in a named style. No window | [reference/caption.md](reference/caption.md) |
-| `restyle <video>` | Caption | The same video in another style. Seconds: the transcript is cached | [reference/caption.md](reference/caption.md) |
-| `live <video>` | Review | A window where the user picks a style, checks captions, and asks you for changes while they watch | [reference/live.md](reference/live.md) |
-| `review <video>` | Review | The same window without the conversation: they pick, click Render, you get one result | [reference/review.md](reference/review.md) |
-| `subtitles <video>` | Export (Pro) | SRT, VTT or word-timing files, with or without the video | [reference/subtitles.md](reference/subtitles.md) |
-| `styles` | System | List the caption styles | [reference/caption.md](reference/caption.md) |
+| `caption <video>` | Caption | Burn captions in, in a named style. No window | [references/caption.md](references/caption.md) |
+| `restyle <video>` | Caption | The same video in another style. Seconds: the transcript is cached | [references/caption.md](references/caption.md) |
+| `live <video>` | Review | A window where the user picks a style, checks captions, and asks you for changes while they watch | [references/live.md](references/live.md) |
+| `review <video>` | Review | The same window without the conversation: they pick, click Render, you get one result | [references/review.md](references/review.md) |
+| `subtitles <video>` | Export (Pro) | SRT, VTT or word-timing files, with or without the video | [references/subtitles.md](references/subtitles.md) |
+| `styles` | System | List the caption styles | [references/caption.md](references/caption.md) |
 | `plan` | System | Free or Pro, and what each allows | Setup, above |
 
 ## Routing

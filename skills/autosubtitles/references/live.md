@@ -18,7 +18,7 @@ Harness policy:
 
 - **Claude Code:** run `poll` as a background task with no short timeout. You are notified when it completes, so the conversation stays free while the user works in the window.
 - **Codex, Cursor and others:** run `poll` in the foreground, one shot, and restart it after each event.
-- If you cannot keep a command waiting at all, use [review](review.md) instead.
+- If you cannot keep a command waiting at all, use the `review` command instead.
 
 Chat is overhead while the window is open. No recaps between events: the `--message` in the window is where the user is looking.
 
