@@ -21,15 +21,19 @@ The video is rendered **locally, inside your own Chrome**, using the same render
 
 ## Use it from an AI agent
 
-This repository is an [agent skill](SKILL.md). It works with Claude Code, Codex, Cursor, Gemini CLI and any agent that can run a shell command.
+This repository includes an [agent skill](skills/autosubtitles/SKILL.md). It works with Claude Code, Codex, Cursor, Gemini CLI and any agent that can run a shell command.
 
 ```bash
 npx skills add auto-subtitles/cli
 ```
 
-Or tell your agent, naming the command so it knows where to find it:
+Then ask in your own words:
 
-> Use `npx autosubtitles` to caption demo.mp4 in the Karaoke style, and give me an SRT too.
+> Caption demo.mp4 in the Karaoke style, and give me an SRT too.
+
+Not installing the skill? Name the command so your agent knows where to find it:
+
+> Use `npx autosubtitles` to caption demo.mp4 in the Karaoke style.
 
 With `--json` the command prints a single JSON object, so agents can read the result without parsing text:
 

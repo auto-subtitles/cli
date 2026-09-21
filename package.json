@@ -10,7 +10,7 @@
   "license": "MIT",
   "type": "module",
   "bin": { "autosubtitles": "bin/autosubtitles.js" },
-  "files": ["bin", "src", "SKILL.md"],
+  "files": ["bin", "src", "skills"],
   "engines": { "node": ">=20" },
   "dependencies": {
     "playwright-core": "^1.55.0"
