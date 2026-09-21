@@ -3,12 +3,11 @@
 Add styled, burned-in captions to a video from the command line, or let your AI agent do it.
 
 ```bash
-npx autosubtitles talk.mp4 --preset beast --srt
+npx autosubtitles talk.mp4 --preset beast
 ```
 
 ```
 /Users/you/talk.captioned.mp4
-/Users/you/talk.captioned.srt
 ```
 
 The video is rendered **locally, inside your own Chrome**, using the same renderer as the [AutoSubtitles](https://autosubtitles.com) web editor. Only the audio track is uploaded, for transcription. The video never leaves your machine.
@@ -16,8 +15,7 @@ The video is rendered **locally, inside your own Chrome**, using the same render
 - 28 caption styles, including word-by-word highlighting and animated styles
 - Hardware-accelerated: a 60-second 1080p clip renders in about 8 seconds on an Apple M-series Mac
 - No ffmpeg, no Python, no model downloads. Needs Node 20+ and Google Chrome or Microsoft Edge
-- SRT, VTT and word-level JSON output
-- Free to use with a watermark. An [AutoSubtitles license](https://autosubtitles.com) removes it
+- Free to use with a watermark. [AutoSubtitles Pro](https://autosubtitles.com) removes it and adds SRT, VTT and word-level JSON files
 
 ## Use it from an AI agent
 
@@ -29,7 +27,7 @@ npx skills add auto-subtitles/cli
 
 Then ask in your own words:
 
-> Caption demo.mp4 in the Karaoke style, and give me an SRT too.
+> Caption demo.mp4 in the Karaoke style.
 
 Not installing the skill? Name the command so your agent knows where to find it:
 
@@ -40,7 +38,7 @@ With `--json` the command prints a single JSON object, so agents can read the re
 ```json
 {
   "ok": true,
-  "outputs": { "mp4": "/Users/you/demo.captioned.mp4", "srt": "/Users/you/demo.captioned.srt" },
+  "outputs": { "mp4": "/Users/you/demo.captioned.mp4" },
   "durationSeconds": 60,
   "captionCount": 32,
   "seconds": 8.3,
@@ -57,14 +55,14 @@ More for agents and developers: [autosubtitles.com/agent](https://autosubtitles.
 ```
 autosubtitles <video> [options]     caption a video
 autosubtitles presets [--json]      list caption styles
-autosubtitles plan [--json]         show whether exports are free or licensed
+autosubtitles plan [--json]         show whether you are on Free or Pro
 
   -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
   -p, --preset <name>     caption style (default: classic)
       --lang <code>       spoken language, e.g. en, es, de (default: auto-detect)
-      --res <shortSide>   720, 1080, 1440 or 2160 (above 720 needs a license)
-      --srt --vtt --words also write caption files beside the output
-      --captions-only     write caption files only, skip the video
+      --res <shortSide>   720, 1080, 1440 or 2160 (above 720 needs Pro)
+      --srt --vtt --words also write subtitle files beside the output (Pro)
+      --captions-only     write subtitle files only, skip the video (Pro)
       --no-cache          transcribe again even if a cached transcript exists
       --json              print one JSON result on stdout
       --headed            show the browser window
@@ -83,21 +81,23 @@ npx autosubtitles talk.mp4 -p neon-glow -o talk.neon.mp4
 
 Want a style that is not in the list? Design it in the [web editor](https://autosubtitles.com), where you can see it on your own video.
 
-### Subtitle files only
+### Subtitle files (Pro)
 
 ```bash
 npx autosubtitles talk.mp4 --captions-only --srt --vtt
 ```
 
-## Free and licensed use
+## Free and Pro
 
-| | Free | With a license |
+| | Free | Pro |
 |---|---|---|
+| Captioned video | Yes | Yes |
 | Watermark | Yes | No |
 | Resolution | Up to 720p | Up to 4K |
 | Video length | Up to 10 minutes | No limit |
+| Subtitle files (SRT, VTT, word timings) | No | Yes |
 
-These are the same limits as the web editor. To use your license:
+These are the same as the web editor. To use your Pro license key:
 
 ```bash
 export AUTOSUBTITLES_LICENSE_KEY=your-key
@@ -119,7 +119,7 @@ Because the renderer is the website's own, new styles and fixes arrive without u
 | 0 | Success |
 | 2 | Bad arguments, unknown preset, or file not found |
 | 3 | No Chrome or Edge found |
-| 4 | Free-tier limit or rate limit |
+| 4 | Needs Pro, or a rate limit |
 | 5 | Transcription failed |
 | 6 | Render failed |
 | 130 | Cancelled |

@@ -9,15 +9,15 @@ const HELP = `autosubtitles — add styled, burned-in captions to a video. Rende
 Usage
   autosubtitles <video> [options]     caption a video
   autosubtitles presets [--json]      list caption styles
-  autosubtitles plan [--json]         show whether exports are free or licensed
+  autosubtitles plan [--json]         show whether you are on Free or Pro
 
 Options
   -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
   -p, --preset <name>     caption style (default: classic). See: autosubtitles presets
       --lang <code>       spoken language, e.g. en, es, de (default: auto-detect)
-      --res <shortSide>   720, 1080, 1440 or 2160 (above 720 needs a license)
-      --srt --vtt --words also write caption files beside the output
-      --captions-only     write caption files only, skip the video
+      --res <shortSide>   720, 1080, 1440 or 2160 (above 720 needs Pro)
+      --srt --vtt --words also write subtitle files beside the output (Pro)
+      --captions-only     write subtitle files only, skip the video (Pro)
       --no-cache          transcribe again even if a cached transcript exists
       --json              print one JSON result on stdout
       --headed            show the browser window
@@ -25,9 +25,10 @@ Options
   -h, --help
   -v, --version
 
-License
-  Free: watermarked, 720p, videos up to 10 minutes.
-  Set AUTOSUBTITLES_LICENSE_KEY to use your AutoSubtitles license.
+Free and Pro
+  Free: captioned video, watermarked, up to 720p, videos up to 10 minutes.
+  Pro:  no watermark, up to 4K, no length limit, SRT and VTT files.
+  Set AUTOSUBTITLES_LICENSE_KEY to your AutoSubtitles Pro license key.
   https://autosubtitles.com
 `;
 
@@ -84,8 +85,8 @@ async function main() {
     if (positionals[0] === 'plan') {
         const plan = await getPlan({ baseUrl, licenseKey: process.env.AUTOSUBTITLES_LICENSE_KEY });
         if (values.json) console.log(JSON.stringify(plan));
-        else if (plan.plan === 'licensed') console.log('Licensed: no watermark, up to 4K, no length limit.');
-        else console.log(`Free (${plan.reason.replace(/_/g, ' ')}): watermarked, up to 720p, videos up to 10 minutes.`);
+        else if (plan.plan === 'pro') console.log('Pro: no watermark, up to 4K, no length limit, SRT and VTT files.');
+        else console.log(`Free (${plan.reason.replace(/_/g, ' ')}): captioned video, watermarked, up to 720p, videos up to 10 minutes. No subtitle files.`);
         return;
     }
 

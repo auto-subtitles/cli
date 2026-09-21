@@ -23,6 +23,7 @@ const EXIT_CODES = {
     no_file: 2,
     duration_limit: 4,
     not_allowed: 4,
+    license_required: 4,
     rate_limited: 4,
     transcription_failed: 5,
     render_failed: 6,
@@ -103,7 +104,7 @@ async function openRenderPage(browserInstance, baseUrl) {
  * only: never the key, the account email or anything else about the license.
  */
 export async function getPlan({ baseUrl = DEFAULT_BASE_URL, licenseKey } = {}) {
-    const free = (reason) => ({ plan: 'free', reason, watermark: true, maxShortSide: 720, maxMinutes: 10 });
+    const free = (reason) => ({ plan: 'free', reason, watermark: true, maxShortSide: 720, maxMinutes: 10, subtitleFiles: false });
     if (!licenseKey) return free('no_key');
     try {
         const response = await fetch(`${baseUrl}/api/license/validate`, {
@@ -112,7 +113,7 @@ export async function getPlan({ baseUrl = DEFAULT_BASE_URL, licenseKey } = {}) {
             body: JSON.stringify({ key: licenseKey }),
         });
         const data = await response.json();
-        if (data.valid === true) return { plan: 'licensed', watermark: false, maxShortSide: 2160, maxMinutes: null };
+        if (data.valid === true) return { plan: 'pro', watermark: false, maxShortSide: 2160, maxMinutes: null, subtitleFiles: true };
         return free(data.reason ?? 'invalid_key');
     } catch {
         return free('could_not_check');
@@ -204,8 +205,10 @@ export async function captionVideo({
         }
 
         // Downloads are dispatched just before render() resolves; wait for every expected file.
+        // Wait for what the page actually wrote: on the free plan it skips subtitle files.
+        const expected = result.files?.length ?? outputs.length;
         const deadline = Date.now() + 60_000;
-        while (pending.length < outputs.length && Date.now() < deadline) {
+        while (pending.length < expected && Date.now() < deadline) {
             await new Promise((r) => setTimeout(r, 100));
         }
         await Promise.all(pending);
@@ -227,8 +230,13 @@ export async function captionVideo({
             watermark: result.watermark,
             maxShortSide: result.maxShortSide,
             transcriptCached: Boolean(transcription),
-            ...(result.watermark && !captionsOnly
-                ? { notice: 'Free tier: watermarked, 720p. Set AUTOSUBTITLES_LICENSE_KEY to remove the watermark and export at full resolution.' }
+            skipped: result.skipped ?? [],
+            ...(result.watermark
+                ? {
+                      notice:
+                          (result.skipped?.length ? 'Subtitle files need Pro, so they were not written. ' : '') +
+                          'Free plan: watermarked, up to 720p. AutoSubtitles Pro removes the watermark, exports up to 4K and adds SRT and VTT files: https://autosubtitles.com',
+                  }
                 : {}),
         };
     } finally {
