@@ -31,7 +31,7 @@ export const EXIT_CODES = {
 };
 
 /** Per-user cache folder, so transcripts never land beside the user's video. */
-function cacheDir() {
+export function cacheDir() {
     if (process.env.AUTOSUBTITLES_CACHE_DIR) return process.env.AUTOSUBTITLES_CACHE_DIR;
     if (process.platform === 'darwin') return path.join(os.homedir(), 'Library', 'Caches', 'autosubtitles');
     if (process.platform === 'win32') return path.join(process.env.LOCALAPPDATA ?? path.join(os.homedir(), 'AppData', 'Local'), 'autosubtitles', 'Cache');

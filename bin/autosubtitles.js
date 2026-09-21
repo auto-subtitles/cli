@@ -3,6 +3,7 @@ import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { reviewVideo } from '../src/review.js';
+import { closeSession, pollSession, replyToSession, runSessionHelper, startSession } from '../src/session.js';
 import { captionVideo, CliError, DEFAULT_BASE_URL, getPlan, listPresets } from '../src/render.js';
 
 const HELP = `autosubtitles — add styled, burned-in captions to a video. Renders locally in your own Chrome.
@@ -10,6 +11,10 @@ const HELP = `autosubtitles — add styled, burned-in captions to a video. Rende
 Usage
   autosubtitles <video> [options]     caption a video
   autosubtitles review <video>        pick a style (and check captions) in a small window, then render
+  autosubtitles review <video> --live keep the window open so the user can ask the agent for changes
+  autosubtitles poll                  live: wait for what the user does next
+  autosubtitles reply [changes]       live: apply changes in the window and answer the user
+  autosubtitles close                 live: end the session
   autosubtitles presets [--json]      list caption styles
   autosubtitles plan [--json]         show whether you are on Free or Pro
 
@@ -21,6 +26,16 @@ Options
       --srt --vtt --words also write subtitle files beside the output (Pro)
       --captions-only     write subtitle files only, skip the video (Pro)
       --captions          review: open at the captions step
+      --live              review: start a live session and return at once
+
+Reply (live sessions)
+      --preset <name>     switch style
+      --set key=value     override one style value, repeatable (e.g. --set textColor=#ffff00)
+      --reset             drop all overrides
+      --replace "a=>b"    find and replace across the captions, repeatable
+      --step <name>       show the 'style' or 'captions' step
+      --steer <id>        the request this answers
+      --message <text>    shown to the user in the window
       --idle <minutes>    review: close the window if nobody touches it (default 10)
       --no-cache          transcribe again even if a cached transcript exists
       --json              print one JSON result on stdout
@@ -48,6 +63,14 @@ const { values, positionals } = parseArgs({
         words: { type: 'boolean' },
         'captions-only': { type: 'boolean' },
         captions: { type: 'boolean' },
+        live: { type: 'boolean' },
+        set: { type: 'string', multiple: true },
+        replace: { type: 'string', multiple: true },
+        reset: { type: 'boolean' },
+        step: { type: 'string' },
+        steer: { type: 'string' },
+        message: { type: 'string' },
+        timeout: { type: 'string' },
         idle: { type: 'string' },
         'no-cache': { type: 'boolean' },
         json: { type: 'boolean' },
@@ -96,10 +119,70 @@ async function main() {
         return;
     }
 
+    if (positionals[0] === '__session') {
+        await runSessionHelper(JSON.parse(positionals[1]));
+        return;
+    }
+
+    if (positionals[0] === 'poll') {
+        console.log(JSON.stringify(await pollSession({ timeoutSeconds: values.timeout ? Number(values.timeout) : undefined })));
+        return;
+    }
+
+    if (positionals[0] === 'close') {
+        console.log(JSON.stringify(await closeSession()));
+        return;
+    }
+
+    if (positionals[0] === 'reply') {
+        const overrides = {};
+        for (const pair of values.set ?? []) {
+            const at = pair.indexOf('=');
+            if (at < 1) throw new CliError(`--set needs key=value, got "${pair}".`, 2, 'usage');
+            const raw = pair.slice(at + 1);
+            // true/false and numbers become real values; everything else stays a string.
+            overrides[pair.slice(0, at)] = raw === 'true' ? true : raw === 'false' ? false : raw !== '' && !Number.isNaN(Number(raw)) ? Number(raw) : raw;
+        }
+        const replace = (values.replace ?? []).map((pair) => {
+            const at = pair.indexOf('=>');
+            if (at < 1) throw new CliError(`--replace needs "find=>with", got "${pair}".`, 2, 'usage');
+            return { find: pair.slice(0, at), with: pair.slice(at + 2) };
+        });
+        const result = await replyToSession({
+            preset: values.preset,
+            overrides: Object.keys(overrides).length ? overrides : undefined,
+            resetOverrides: values.reset || undefined,
+            replace: replace.length ? replace : undefined,
+            step: values.step,
+            steerId: values.steer ? Number(values.steer) : undefined,
+            message: values.message,
+        });
+        console.log(JSON.stringify(result));
+        if (!result.ok) process.exitCode = 2;
+        return;
+    }
+
     if (positionals[0] === 'review') {
         if (!positionals[1]) throw new CliError('Usage: autosubtitles review <video> [--preset <name>]', 2, 'usage');
         const video = path.resolve(positionals[1]);
         const p = path.parse(video);
+        if (values.live) {
+            const started = await startSession({
+                input: video,
+                output: path.resolve(values.output ?? path.join(p.dir, `${p.name}.captioned.mp4`)),
+                preset: values.preset,
+                language: values.lang,
+                resolution: values.res ? Number(values.res) : undefined,
+                step: values.captions ? 'captions' : 'style',
+                idleMinutes: values.idle ? Number(values.idle) : undefined,
+                cache: !values['no-cache'],
+                licenseKey: process.env.AUTOSUBTITLES_LICENSE_KEY,
+                baseUrl,
+                browser: values.browser,
+            });
+            console.log(JSON.stringify(started));
+            return;
+        }
         const result = await reviewVideo({
             input: video,
             output: path.resolve(values.output ?? path.join(p.dir, `${p.name}.captioned.mp4`)),
