@@ -1,17 +1,40 @@
 {
   "name": "autosubtitles",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Add styled, burned-in captions to a video from the command line or an AI agent. Renders locally in your own Chrome.",
-  "keywords": ["subtitles", "captions", "video", "srt", "vtt", "agent-skill", "claude-skills", "mcp", "cli"],
+  "keywords": [
+    "subtitles",
+    "captions",
+    "video",
+    "srt",
+    "vtt",
+    "agent-skill",
+    "claude-skills",
+    "mcp",
+    "cli"
+  ],
   "homepage": "https://autosubtitles.com/agent",
-  "repository": { "type": "git", "url": "git+https://github.com/auto-subtitles/cli.git" },
-  "bugs": { "url": "https://github.com/auto-subtitles/cli/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/auto-subtitles/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/auto-subtitles/cli/issues"
+  },
   "author": "AutoSubtitles (https://autosubtitles.com)",
   "license": "MIT",
   "type": "module",
-  "bin": { "autosubtitles": "bin/autosubtitles.js" },
-  "files": ["bin", "src", "skills"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "autosubtitles": "bin/autosubtitles.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "playwright-core": "^1.55.0"
   }
