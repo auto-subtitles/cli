@@ -29,6 +29,19 @@ Then ask in your own words:
 
 > Caption demo.mp4 in the Karaoke style.
 
+What the skill gives your agent:
+
+| | |
+|---|---|
+| **caption** | Burn captions in, in the style you name |
+| **restyle** | The same video in another style, in seconds |
+| **live** | A window where you pick a style, check the captions, and ask your agent for changes while you watch |
+| **review** | The same window without the conversation: pick, click Render |
+| **subtitles** (Pro) | SRT, VTT and word-timing files |
+| **styles**, **plan** | List the styles; see what Free and Pro allow |
+
+Name a style and it just renders. Leave the style open and a small window appears so you can choose by eye.
+
 Not installing the skill? Name the command so your agent knows where to find it:
 
 > Use `npx autosubtitles` to caption demo.mp4 in the Karaoke style.
@@ -76,7 +89,11 @@ autosubtitles plan [--json]         show whether you are on Free or Pro
 npx autosubtitles review talk.mp4
 ```
 
-A small window opens with your video and every style. Click through them and watch the captions change, then click **Render video**. "Check captions first" lets you fix the wording and timings before it renders. Through an agent, this is what happens when you ask it to caption a video without naming a style.
+A small window opens with your video and every style. Click through them and watch the captions change, then click **Render video**. "Check captions first" lets you fix the wording and timings before it renders.
+
+Through an agent the same window becomes a conversation. There is a box at the bottom: type "make the captions bigger and yellow" or "fix the speaker's name everywhere", and your agent changes it while you watch. This is what happens when you ask an agent to caption a video without naming a style.
+
+Agents drive it with four commands: `review <video> --live` opens the window and returns at once, `poll` waits for what you do next, `reply` applies changes (`--preset`, `--set key=value`, `--replace "find=>with"`, `--message`), and `close` ends it. The skill's [live reference](skills/autosubtitles/reference/live.md) has the details.
 
 ### Try a few styles from the command line
 
