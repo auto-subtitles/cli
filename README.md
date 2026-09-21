@@ -27,9 +27,9 @@ This repository is an [agent skill](SKILL.md). It works with Claude Code, Codex,
 npx skills add auto-subtitles/cli
 ```
 
-Or just tell your agent:
+Or tell your agent, naming the command so it knows where to find it:
 
-> Caption demo.mp4 with autosubtitles, in the Karaoke style, and give me an SRT too.
+> Use `npx autosubtitles` to caption demo.mp4 in the Karaoke style, and give me an SRT too.
 
 With `--json` the command prints a single JSON object, so agents can read the result without parsing text:
 
