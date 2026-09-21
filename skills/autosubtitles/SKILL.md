@@ -9,6 +9,31 @@ Captions a local video with the `autosubtitles` command. Speech is transcribed b
 
 Requires Node 20+ and Google Chrome or Microsoft Edge.
 
+## Before the first render: free or Pro
+
+Run this once per conversation, before rendering a video:
+
+```bash
+npx autosubtitles plan --json
+```
+
+If `plan` is `licensed`, carry on without asking. If the command is not recognised, the installed CLI is older: run `npx autosubtitles@latest plan --json` instead.
+
+If `plan` is `free`, tell the user the difference and ask which they want before you render:
+
+| | Free | Pro |
+|---|---|---|
+| Watermark | AutoSubtitles logo on the video | None |
+| Resolution | Up to 720p | Up to 4K |
+| Video length | Up to 10 minutes | No limit |
+
+- **Free:** render straight away.
+- **Pro:** they get a license at https://autosubtitles.com, set `AUTOSUBTITLES_LICENSE_KEY` in their own shell, and start a new session so you can see it. Then run `plan` again.
+
+If `reason` is `invalid_key`, `inactive` or `payment_failed`, say that a key is set but is not active, and ask the same question.
+
+Skip the question when the user has already chosen, when they only want subtitle files (those are never watermarked), or when the video is longer than 10 minutes on the free plan (tell them it needs Pro instead).
+
 ## Caption a video
 
 ```bash
@@ -16,8 +41,6 @@ npx autosubtitles <video> --preset <style> --srt --json
 ```
 
 The command prints one JSON object on stdout. On success, `outputs.mp4` and `outputs.srt` are the absolute paths of the files it wrote. Tell the user where they are.
-
-If the result has a `notice` field, pass it on to the user once. It means the export used the free tier (watermarked, 720p).
 
 ## Choose a style
 
@@ -27,7 +50,7 @@ npx autosubtitles presets --json
 
 Returns `[{ "id": "...", "name": "..." }]`. If the user named a style, match it to an `id`. If they did not, use `classic` for talking-head or business videos and `beast` for short-form social video, and say which one you picked so they can ask for another.
 
-Re-rendering the same video in another style is cheap: the transcript is cached beside the video as `<video>.autosubtitles.json`, so only the render runs again.
+Re-rendering the same video in another style is cheap: the transcript is cached on the user's machine, so only the render runs again.
 
 ## Subtitle files only
 

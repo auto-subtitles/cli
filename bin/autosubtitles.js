@@ -2,13 +2,14 @@
 import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { captionVideo, CliError, DEFAULT_BASE_URL, listPresets } from '../src/render.js';
+import { captionVideo, CliError, DEFAULT_BASE_URL, getPlan, listPresets } from '../src/render.js';
 
 const HELP = `autosubtitles — add styled, burned-in captions to a video. Renders locally in your own Chrome.
 
 Usage
   autosubtitles <video> [options]     caption a video
   autosubtitles presets [--json]      list caption styles
+  autosubtitles plan [--json]         show whether exports are free or licensed
 
 Options
   -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
@@ -77,6 +78,14 @@ async function main() {
         const presets = await listPresets(common);
         if (values.json) console.log(JSON.stringify(presets));
         else for (const p of presets) console.log(`${p.id.padEnd(14)} ${p.name}`);
+        return;
+    }
+
+    if (positionals[0] === 'plan') {
+        const plan = await getPlan({ baseUrl, licenseKey: process.env.AUTOSUBTITLES_LICENSE_KEY });
+        if (values.json) console.log(JSON.stringify(plan));
+        else if (plan.plan === 'licensed') console.log('Licensed: no watermark, up to 4K, no length limit.');
+        else console.log(`Free (${plan.reason.replace(/_/g, ' ')}): watermarked, up to 720p, videos up to 10 minutes.`);
         return;
     }
 

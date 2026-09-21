@@ -1,6 +1,8 @@
 import { chromium } from 'playwright-core';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { mkdir, open, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import os from 'node:os';
 import path from 'node:path';
 
 export const DEFAULT_BASE_URL = 'https://autosubtitles.com';
@@ -26,6 +28,31 @@ const EXIT_CODES = {
     render_failed: 6,
     cancelled: 130,
 };
+
+/** Per-user cache folder, so transcripts never land beside the user's video. */
+function cacheDir() {
+    if (process.env.AUTOSUBTITLES_CACHE_DIR) return process.env.AUTOSUBTITLES_CACHE_DIR;
+    if (process.platform === 'darwin') return path.join(os.homedir(), 'Library', 'Caches', 'autosubtitles');
+    if (process.platform === 'win32') return path.join(process.env.LOCALAPPDATA ?? path.join(os.homedir(), 'AppData', 'Local'), 'autosubtitles', 'Cache');
+    return path.join(process.env.XDG_CACHE_HOME ?? path.join(os.homedir(), '.cache'), 'autosubtitles');
+}
+
+/**
+ * Cache key from the file's size and its first megabyte, not its path, so a
+ * renamed or moved video still hits the cache and a different video never does.
+ */
+async function transcriptCachePath(input) {
+    const { size } = await stat(input);
+    const handle = await open(input, 'r');
+    try {
+        const head = Buffer.alloc(Math.min(size, 1024 * 1024));
+        await handle.read(head, 0, head.length, 0);
+        const key = createHash('sha256').update(String(size)).update(head).digest('hex').slice(0, 32);
+        return path.join(cacheDir(), `${key}.json`);
+    } finally {
+        await handle.close();
+    }
+}
 
 const LAUNCH_ARGS = ['--disable-renderer-backgrounding', '--disable-background-timer-throttling', '--disable-backgrounding-occluded-windows'];
 
@@ -71,6 +98,27 @@ async function openRenderPage(browserInstance, baseUrl) {
     return page;
 }
 
+/**
+ * Whether exports will use the free or the licensed tier. Reports the tier
+ * only: never the key, the account email or anything else about the license.
+ */
+export async function getPlan({ baseUrl = DEFAULT_BASE_URL, licenseKey } = {}) {
+    const free = (reason) => ({ plan: 'free', reason, watermark: true, maxShortSide: 720, maxMinutes: 10 });
+    if (!licenseKey) return free('no_key');
+    try {
+        const response = await fetch(`${baseUrl}/api/license/validate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ key: licenseKey }),
+        });
+        const data = await response.json();
+        if (data.valid === true) return { plan: 'licensed', watermark: false, maxShortSide: 2160, maxMinutes: null };
+        return free(data.reason ?? 'invalid_key');
+    } catch {
+        return free('could_not_check');
+    }
+}
+
 export async function listPresets({ baseUrl = DEFAULT_BASE_URL, browser, headed } = {}) {
     const browserInstance = await launchBrowser({ browser, headed });
     try {
@@ -108,8 +156,8 @@ export async function captionVideo({
     if (outputs.length === 0) throw new CliError('Nothing to do: --captions-only needs --srt, --vtt or --words.', 2, 'usage');
     const targets = { mp4: `${outputBase}.mp4`, srt: `${outputBase}.srt`, vtt: `${outputBase}.vtt`, json: `${outputBase}.words.json` };
 
-    // The transcript is cached beside the video so re-renders don't transcribe twice.
-    const cachePath = `${input}.autosubtitles.json`;
+    // The transcript is cached so re-renders in another style don't transcribe twice.
+    const cachePath = await transcriptCachePath(input);
     let transcription;
     if (cache && existsSync(cachePath)) {
         transcription = JSON.parse(await readFile(cachePath, 'utf8'));
@@ -163,7 +211,10 @@ export async function captionVideo({
         await Promise.all(pending);
 
         if (cache && !transcription) {
-            await writeFile(cachePath, JSON.stringify(result.transcription));
+            // Best effort: a read-only home directory must not fail a finished render.
+            await mkdir(path.dirname(cachePath), { recursive: true })
+                .then(() => writeFile(cachePath, JSON.stringify(result.transcription)))
+                .catch(() => {});
         }
 
         return {

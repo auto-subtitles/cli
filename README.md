@@ -57,6 +57,7 @@ More for agents and developers: [autosubtitles.com/agent](https://autosubtitles.
 ```
 autosubtitles <video> [options]     caption a video
 autosubtitles presets [--json]      list caption styles
+autosubtitles plan [--json]         show whether exports are free or licensed
 
   -o, --output <path>     output MP4 (default: <name>.captioned.mp4)
   -p, --preset <name>     caption style (default: classic)
@@ -72,7 +73,7 @@ autosubtitles presets [--json]      list caption styles
 
 ### Try a few styles
 
-The transcript is cached beside the video as `<video>.autosubtitles.json`, so only the first run transcribes. Re-rendering in another style takes seconds:
+The transcript is cached on your machine (in your system cache folder, never beside your video), so only the first run transcribes. Re-rendering in another style takes seconds:
 
 ```bash
 npx autosubtitles talk.mp4 -p classic  -o talk.classic.mp4
