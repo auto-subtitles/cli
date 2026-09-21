@@ -16,10 +16,10 @@
   "homepage": "https://autosubtitles.com/agent",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/auto-subtitles/cli.git"
+    "url": "git+https://github.com/autosubtitles/cli.git"
   },
   "bugs": {
-    "url": "https://github.com/auto-subtitles/cli/issues"
+    "url": "https://github.com/autosubtitles/cli/issues"
   },
   "author": "AutoSubtitles (https://autosubtitles.com)",
   "license": "MIT",
