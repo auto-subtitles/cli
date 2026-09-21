@@ -22,7 +22,7 @@ The video is rendered **locally, inside your own Chrome**, using the same render
 This repository includes an [agent skill](skills/autosubtitles/SKILL.md). It works with Claude Code, Codex, Cursor, Gemini CLI and any agent that can run a shell command.
 
 ```bash
-npx skills add autosubtitles/cli
+npx skills add autosubtitles/skills
 ```
 
 Then ask in your own words:

@@ -1,6 +1,6 @@
 {
   "name": "autosubtitles",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Add styled, burned-in captions to a video from the command line or an AI agent. Renders locally in your own Chrome.",
   "keywords": [
     "subtitles",
@@ -16,10 +16,10 @@
   "homepage": "https://autosubtitles.com/agent",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/autosubtitles/cli.git"
+    "url": "git+https://github.com/autosubtitles/skills.git"
   },
   "bugs": {
-    "url": "https://github.com/autosubtitles/cli/issues"
+    "url": "https://github.com/autosubtitles/skills/issues"
   },
   "author": "AutoSubtitles (https://autosubtitles.com)",
   "license": "MIT",
