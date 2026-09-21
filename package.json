@@ -1,6 +1,6 @@
 {
   "name": "autosubtitles",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Add styled, burned-in captions to a video from the command line or an AI agent. Renders locally in your own Chrome.",
   "keywords": [
     "subtitles",
