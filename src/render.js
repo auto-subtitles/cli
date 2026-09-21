@@ -18,7 +18,7 @@ export class CliError extends Error {
 }
 
 // Page error code → process exit code.
-const EXIT_CODES = {
+export const EXIT_CODES = {
     unknown_preset: 2,
     no_file: 2,
     duration_limit: 4,
@@ -42,7 +42,7 @@ function cacheDir() {
  * Cache key from the file's size and its first megabyte, not its path, so a
  * renamed or moved video still hits the cache and a different video never does.
  */
-async function transcriptCachePath(input) {
+export async function transcriptCachePath(input) {
     const { size } = await stat(input);
     const handle = await open(input, 'r');
     try {

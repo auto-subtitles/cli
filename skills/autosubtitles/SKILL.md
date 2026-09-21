@@ -11,7 +11,7 @@ Requires Node 20+ and Google Chrome or Microsoft Edge.
 
 ## Before the first render: free or Pro
 
-Run this once per conversation, before rendering a video:
+Run this once per conversation, before rendering a video or opening the review window:
 
 ```bash
 npx autosubtitles plan --json
@@ -35,7 +35,28 @@ If `reason` is `invalid_key`, `inactive` or `payment_failed`, say that a key is 
 
 Skip the question when the user has already chosen. If the plan is `free` and they only want subtitle files, or the video is longer than 10 minutes, do not run the command: tell them that needs Pro.
 
-## Caption a video
+## Choose how to run it
+
+| The user… | Do this |
+|---|---|
+| named a style, and did not ask to check anything | Render directly (below) |
+| did not name a style, or wants to see the styles or check the captions | Open the review window |
+| is not at the computer: a background job, a batch of files, a scheduled run | Never open a window. Pick a style yourself and render directly |
+
+## Review window
+
+```bash
+npx autosubtitles review <video> --json
+```
+
+A small window opens on the user's screen: their video with the captions on it, and every style to click through. "Check captions first" shows the captions as editable lines, with timings. They click **Render video** or **Cancel**, the window closes itself, and the command prints one JSON object. Tell the user the window has opened, then wait for the command to finish.
+
+- Add `--preset <style>` to open with a style already applied.
+- Add `--captions` when the user wants to check or fix the captions, to open straight at that step.
+- `action` in the result is `render` (with `outputs.mp4`, the `preset` they chose, and `edited`: whether they changed any captions), `cancel`, or `timeout`.
+- `timeout` means nobody touched the window for 10 minutes. Nothing was rendered. Ask whether they want to try again; do not reopen it unasked.
+
+## Render directly
 
 ```bash
 npx autosubtitles <video> --preset <style> --json
@@ -45,13 +66,13 @@ The command prints one JSON object on stdout. On success, `outputs.mp4` is the a
 
 On Pro, add `--srt` or `--vtt` when the user wants subtitle files too; their paths appear in `outputs`. On the free plan those are not written and are listed in `skipped`.
 
-## Choose a style
+Styles, for when you have to choose one yourself:
 
 ```bash
 npx autosubtitles presets --json
 ```
 
-Returns `[{ "id": "...", "name": "..." }]`. If the user named a style, match it to an `id`. If they did not, use `classic` for talking-head or business videos and `beast` for short-form social video, and say which one you picked so they can ask for another.
+Returns `[{ "id": "...", "name": "..." }]`. If the user named a style, match it to an `id`. If you must choose, use `classic` for talking-head or business videos and `beast` for short-form social video, and say which one you picked.
 
 Re-rendering the same video in another style is cheap: the transcript is cached on the user's machine, so only the render runs again.
 

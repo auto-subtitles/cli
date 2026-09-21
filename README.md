@@ -54,6 +54,7 @@ More for agents and developers: [autosubtitles.com/agent](https://autosubtitles.
 
 ```
 autosubtitles <video> [options]     caption a video
+autosubtitles review <video>        pick a style (and check captions) in a small window, then render
 autosubtitles presets [--json]      list caption styles
 autosubtitles plan [--json]         show whether you are on Free or Pro
 
@@ -69,7 +70,15 @@ autosubtitles plan [--json]         show whether you are on Free or Pro
       --browser <name>    chrome, msedge or chromium
 ```
 
-### Try a few styles
+### Pick a style by eye
+
+```bash
+npx autosubtitles review talk.mp4
+```
+
+A small window opens with your video and every style. Click through them and watch the captions change, then click **Render video**. "Check captions first" lets you fix the wording and timings before it renders. Through an agent, this is what happens when you ask it to caption a video without naming a style.
+
+### Try a few styles from the command line
 
 The transcript is cached on your machine (in your system cache folder, never beside your video), so only the first run transcribes. Re-rendering in another style takes seconds:
 
